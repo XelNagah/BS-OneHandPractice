@@ -6,14 +6,15 @@
   -->
   <PropertyGroup>
     <BeatSaberDir Condition="'$(BeatSaberDir)' == ''">$(BEATSABERDIR)</BeatSaberDir>
-    <BeatSaberDir Condition="'$(BeatSaberDir)' == ''">D:\BSManager\BSInstances\1.39.1</BeatSaberDir>
     <BeatSaberManagedDir>$(BeatSaberDir)\Beat Saber_Data\Managed</BeatSaberManagedDir>
     <BeatSaberLibsDir>$(BeatSaberDir)\Libs</BeatSaberLibsDir>
     <BeatSaberPluginsDir>$(BeatSaberDir)\Plugins</BeatSaberPluginsDir>
   </PropertyGroup>
 
   <Target Name="ValidateBeatSaberDir" BeforeTargets="Build">
-    <Error Condition="!Exists('$(BeatSaberManagedDir)')"
-           Text="BeatSaberDir '$(BeatSaberDir)' does not contain a 'Beat Saber_Data\Managed' folder. Set the BeatSaberDir environment variable or MSBuild property to point at a Beat Saber install." />
+    <Error Condition="'$(BeatSaberDir)' == ''"
+           Text="BeatSaberDir is not set. Define the BeatSaberDir environment variable (or MSBuild property) pointing at your Beat Saber install. Example: setx BeatSaberDir &quot;C:\Program Files (x86)\Steam\steamapps\common\Beat Saber&quot;" />
+    <Error Condition="'$(BeatSaberDir)' != '' and !Exists('$(BeatSaberManagedDir)')"
+           Text="BeatSaberDir '$(BeatSaberDir)' does not contain a 'Beat Saber_Data\Managed' folder. Check the path." />
   </Target>
 </Project>

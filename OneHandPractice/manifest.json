@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "OneHandPractice",
   "name": "One Hand Practice",
-  "author": "jllarens",
+  "author": "XelNagah",
   "version": "0.1.0",
   "description": "Filter beatmap notes to a single hand for technique practice. Submission to leaderboards is disabled while active.",
   "gameVersion": "1.39.1",
