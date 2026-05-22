@@ -24,28 +24,15 @@ namespace OneHandPractice
         public Plugin(IPALogger logger, IPA.Config.Config conf)
         {
             Log = logger;
-
-            // Wire BSIPA config. GeneratedStore creates a runtime subclass that tracks property writes
-            // and serializes to OneHandPractice.json under UserData/.
             PluginConfig.Instance = conf.Generated<PluginConfig>();
             HandSelection.Current = PluginConfig.Instance.SelectedHand;
-
             Log.Info($"OneHandPractice loaded (hand={HandSelection.Current})");
         }
 
         [OnEnable]
         public void OnEnable()
         {
-            try
-            {
-                _harmony.PatchAll(Assembly.GetExecutingAssembly());
-                Log.Info("OneHandPractice enabled — Harmony patches applied");
-            }
-            catch (System.Exception ex)
-            {
-                Log.Error($"OneHandPractice patch failed during OnEnable: {ex}");
-            }
-
+            _harmony.PatchAll(Assembly.GetExecutingAssembly());
             BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
         }
 
@@ -53,47 +40,22 @@ namespace OneHandPractice
         public void OnDisable()
         {
             BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
-
-            try
+            if (_tabRegistered)
             {
-                if (_tabRegistered)
-                {
-                    GameplaySetup.Instance.RemoveTab(OneHandSettingsViewController.TabName);
-                    _tabRegistered = false;
-                }
+                GameplaySetup.Instance.RemoveTab(OneHandSettingsViewController.TabName);
+                _tabRegistered = false;
             }
-            catch (System.Exception ex)
-            {
-                Log.Error($"Failed to remove Gameplay Setup tab: {ex}");
-            }
-
-            try
-            {
-                _harmony.UnpatchSelf();
-                Log.Info("OneHandPractice disabled — Harmony patches removed");
-            }
-            catch (System.Exception ex)
-            {
-                Log.Error($"OneHandPractice unpatch failed during OnDisable: {ex}");
-            }
+            _harmony.UnpatchSelf();
         }
 
         private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO _)
         {
             if (_tabRegistered) return;
-            try
-            {
-                GameplaySetup.Instance.AddTab(
-                    OneHandSettingsViewController.TabName,
-                    OneHandSettingsViewController.BsmlResource,
-                    _settingsHost);
-                _tabRegistered = true;
-                Log.Info("Gameplay Setup tab registered");
-            }
-            catch (System.Exception ex)
-            {
-                Log.Error($"Failed to register Gameplay Setup tab: {ex}");
-            }
+            GameplaySetup.Instance.AddTab(
+                OneHandSettingsViewController.TabName,
+                OneHandSettingsViewController.BsmlResource,
+                _settingsHost);
+            _tabRegistered = true;
         }
     }
 }

@@ -5,15 +5,9 @@ using OneHandPractice.Resources;
 
 namespace OneHandPractice.UI
 {
-    /// <summary>
-    /// Host for <c>OneHandSettings.bsml</c>. Backs the dropdown in the Gameplay Setup tab and
-    /// writes the selection to <see cref="HandSelection.Current"/> so the filter patch sees it
-    /// on the next gameplay session. All user-visible text comes from <see cref="Strings"/>.
-    /// </summary>
     public class OneHandSettingsViewController
     {
         public const string BsmlResource = "OneHandPractice.UI.OneHandSettings.bsml";
-
         public static string TabName => Strings.TabName;
 
         [UIValue("title-text")]
@@ -42,24 +36,20 @@ namespace OneHandPractice.UI
             {
                 var hand = FromChoice(value);
                 HandSelection.Current = hand;
-                if (PluginConfig.Instance != null)
-                {
-                    PluginConfig.Instance.SelectedHand = hand;
-                }
-                Plugin.Log?.Info($"UI: hand selection -> {hand}");
+                if (PluginConfig.Instance != null) PluginConfig.Instance.SelectedHand = hand;
             }
         }
 
         private static string ToChoice(Hand hand) => hand switch
         {
-            Hand.Left => Strings.ChoiceLeft,
+            Hand.Left  => Strings.ChoiceLeft,
             Hand.Right => Strings.ChoiceRight,
-            _ => Strings.ChoiceOff,
+            _          => Strings.ChoiceOff,
         };
 
         private static Hand FromChoice(string choice)
         {
-            if (choice == Strings.ChoiceLeft) return Hand.Left;
+            if (choice == Strings.ChoiceLeft)  return Hand.Left;
             if (choice == Strings.ChoiceRight) return Hand.Right;
             return Hand.Off;
         }

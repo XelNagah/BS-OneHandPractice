@@ -31,11 +31,10 @@
 
 [CmdletBinding()]
 param(
-    [string[]]$BsVersion = @(
-        '1.39.1',
-        '1.40.0', '1.40.4', '1.40.6', '1.40.8',
-        '1.41.1', '1.42.0', '1.42.1', '1.42.2', '1.42.3', '1.43.0'
-    ),
+    # One zip per dependency group. Each ship target's gameVersion is the highest version we
+    # tested directly inside its group; BSIPA's strict gameVersion check means each user picks
+    # the zip whose name matches their game (BSManager handles this automatically).
+    [string[]]$BsVersion = @('1.39.1', '1.40.8', '1.43.0'),
     [string]$OutputDir = (Join-Path $PSScriptRoot 'dist'),
     [string]$Configuration = 'Release',
     [string]$BsManagerInstancesDir = $env:BSMANAGER_INSTANCES_DIR
@@ -49,18 +48,9 @@ $ErrorActionPreference = 'Stop'
 # every group member's manifest. If the build target install isn't available,
 # every ship version in that group is skipped.
 $buildGroups = @(
-    @{
-        BuildAgainst = '1.39.1'
-        ShipVersions = @('1.39.1')
-    },
-    @{
-        BuildAgainst = '1.40.8'
-        ShipVersions = @('1.40.0', '1.40.4', '1.40.6', '1.40.8')
-    },
-    @{
-        BuildAgainst = '1.43.0'
-        ShipVersions = @('1.41.1', '1.42.0', '1.42.1', '1.42.2', '1.42.3', '1.43.0')
-    }
+    @{ BuildAgainst = '1.39.1'; ShipVersions = @('1.39.1') },
+    @{ BuildAgainst = '1.40.8'; ShipVersions = @('1.40.8') },
+    @{ BuildAgainst = '1.43.0'; ShipVersions = @('1.43.0') }
 )
 
 # Auto-discover BSManager instances folder when not provided.

@@ -20,17 +20,17 @@ If a hard pattern fails because your weaker hand is off-sync with the stronger o
 
 ## Requirements
 
-Supported Beat Saber versions (Steam or Oculus PC):
+Supported Beat Saber versions (Steam or Oculus PC) — pick the zip that matches your game:
 
-| BS version | BSIPA | BSML | SiraUtil | BS Utils |
-|---|---|---|---|---|
-| **1.39.1**                                        | 4.3.6 | 1.12.4 | 3.1.14 | 1.14.2 |
-| **1.40.0**, **1.40.4**, **1.40.6**, **1.40.8**     | 4.3.6 | 1.12.5 | 3.2.1  | 1.14.2 |
-| **1.41.1**, **1.42.0**, **1.42.1**, **1.42.2**, **1.42.3**, **1.43.0** | 4.3.7 | 1.14.1 | 3.3.1  | 1.14.3 |
+| Zip | Works for | BSIPA | BSML | SiraUtil | BS Utils |
+|---|---|---|---|---|---|
+| **`bs1.39.1.zip`** | 1.39.1 | 4.3.6 | 1.12.4 | 3.1.14 | 1.14.2 |
+| **`bs1.40.8.zip`** | 1.40.0 – 1.40.8 | 4.3.6 | 1.12.5 | 3.2.1  | 1.14.2 |
+| **`bs1.43.0.zip`** | 1.41.x – 1.43.0 | 4.3.7 | 1.14.1 | 3.3.1  | 1.14.3 |
 
-11 BS versions in total. BSManager installs the dependency mods automatically at the right version when you pick a Beat Saber instance — you only need to drop in the matching `OneHandPractice-…-bs<version>.zip`.
+BSManager installs the dependency mods automatically at the right version when you pick a Beat Saber instance.
 
-> Compiled and tested directly on **1.39.1, 1.40.8 and 1.43.0**. The other ship versions in their respective rows use the same compiled DLL (the underlying game APIs we touch did not change inside each row) — they are expected to work but have not been hands-on tested.
+> If your Beat Saber version sits between two zips (e.g. 1.40.4), use the closer one. BSIPA enforces an exact `gameVersion` match by default, so you may need to set `Regenerate = true` or `IgnoreGameVersion = true` in `UserData/Beat Saber IPA.json` once. Directly tested on **1.39.1**, **1.40.8** and **1.43.0**.
 
 ---
 
@@ -50,7 +50,7 @@ That's it. BSManager pulls dependencies automatically.
 ### Manual install
 
 1. Make sure the dependencies above are installed for your Beat Saber version (use BSManager).
-2. Download the zip that **matches your Beat Saber version** from the [latest release](../../releases/latest). There is one zip per supported game version, named `OneHandPractice-<plugin>-bs<game>.zip` — pick the file whose `bs<game>` matches your game (e.g. `OneHandPractice-0.1.0-bs1.42.1.zip` for Beat Saber 1.42.1).
+2. Download the zip from the [latest release](../../releases/latest) that matches your Beat Saber version per the table above. There is one zip per dep group (`bs1.39.1`, `bs1.40.8`, `bs1.43.0`).
 3. Extract it **into your Beat Saber folder** (the one with `Beat Saber.exe`). The zip is structured so it drops `OneHandPractice.dll` straight into your `Plugins\` folder.
 4. Launch the game.
 
