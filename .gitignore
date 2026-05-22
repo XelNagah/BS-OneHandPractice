@@ -1,0 +1,48 @@
+# Build outputs
+bin/
+obj/
+out/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Visual Studio / Rider
+.vs/
+.idea/
+.vscode/
+*.swp
+
+# Tooling caches
+.dotnet/
+.nuget/
+*.nupkg
+*.snupkg
+
+# NuGet
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Recon working files (kept tracked: recon.ps1, recon-output.txt allowed)
+recon/*.dll
+recon/*.cache
+
+# Local secrets / env
+*.local.json
+!.claude/settings.local.json
+.env
+*.pdb
+
+# ILSpy temp
+ilspy_tmp/
+
+# Beat Saber install pointers
+.beatsaberdir

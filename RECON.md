@@ -1,0 +1,243 @@
+# Recon BS 1.39.1 — One Hand Practice mod
+
+Generated: 2026-05-20
+
+Result of Phase 0 of the implementation plan. APIs verified by decompiling `D:\BSManager\BSInstances\1.39.1\Beat Saber_Data\Managed\Main.dll` and adjacent assemblies via Mono.Cecil.
+
+Raw recon dump: [recon/recon-output.txt](recon/recon-output.txt). Script: [recon/recon.ps1](recon/recon.ps1).
+
+---
+
+## Patch surface (filter point)
+
+### Primary target
+
+```csharp
+// DataModels.dll
+public static class BeatmapDataTransformHelper
+{
+    public static IReadonlyBeatmapData CreateTransformedBeatmapData(
+        IReadonlyBeatmapData beatmapData,
+        BeatmapLevel beatmapLevel,
+        GameplayModifiers gameplayModifiers,
+        bool leftHanded,
+        EnvironmentEffectsFilterPreset environmentEffectsFilterPreset,
+        EnvironmentIntensityReductionOptions environmentIntensityReductionOptions,
+        ref BeatSaber.Settings.Settings settings);
+}
+```
+
+**Strategy:** Harmony postfix with `[HarmonyPriority(Priority.Low)]` (runs after PracticePlugin if installed). Take `__result`, replace with filtered copy:
+
+```csharp
+__result = __result.GetFilteredCopy(item =>
+{
+    if (item is NoteData n && n.colorType != ColorType.None && n.colorType != activeHand)
+        return null; // drop opposite-color non-bomb notes
+    if (item is SliderData s && s.colorType != activeHand)
+        return null; // drop opposite-color sliders (arc + burst)
+    return item; // keep everything else (bombs, walls, events, etc.)
+});
+```
+
+### Built-in helper
+
+```csharp
+// IReadonlyBeatmapData / BeatmapData, DataModels.dll
+public BeatmapData GetFilteredCopy(Func<BeatmapDataItem, BeatmapDataItem> processDataItem);
+```
+
+Returns new `BeatmapData` instance. Delegate returns `null` to drop, same instance to keep, or modified item.
+
+---
+
+## Data types
+
+### `BeatmapDataItem` (base, BeatmapCore.dll)
+- Abstract-ish base for all timeline items: notes, sliders, obstacles, events.
+- `time`, `executionOrder`, `subtypeGroupIdentifier`, `subtypeIdentifier`, `type` (`BeatmapDataItemType` enum).
+
+### `NoteData : BeatmapObjectData : BeatmapDataItem` (BeatmapCore.dll)
+- `ColorType colorType` ← **filter key**.
+- `NoteCutDirection cutDirection`
+- `NoteData.GameplayType gameplayType` (Normal / Bomb / BurstSliderHead / BurstSliderElement)
+- `NoteData.ScoringType scoringType`
+- `bool isArcHead`, `bool isArcTail`
+- Static factories: `CreateBombNoteData`, `CreateBasicNoteData`, `CreateBurstSliderNoteData`.
+
+### `SliderData : BeatmapObjectData` (BeatmapCore.dll)
+- `ColorType colorType` ← **filter key**.
+- `SliderData.Type sliderType` (Normal / Burst). **Burst sliders are just `SliderData` with `Type.Burst`; no separate runtime `BurstSliderData` class.**
+- Has head + tail positions, control point multipliers.
+
+### `ObstacleData : BeatmapObjectData` (BeatmapCore.dll)
+- No color. Always keep (walls).
+
+### `ColorType` enum (BeatmapCore.dll)
+```csharp
+public enum ColorType {
+    ColorA = 0,  // Left (red by default)
+    ColorB = 1,  // Right (blue by default)
+    None = -1    // Bombs
+}
+```
+
+**Critical:** filter must check `colorType != ColorType.None && colorType != activeHand` to keep bombs (`None`).
+
+---
+
+## Score model
+
+```csharp
+// DataModels.dll
+public static class ScoreModel
+{
+    public static int ComputeMaxMultipliedScoreForBeatmap(IReadonlyBeatmapData beatmapData);
+    public static int ComputeQuickInaccurateMaxMultipliedScoreForBeatmap(BeatmapBasicData beatmapBasicData);
+    public static NoteScoreDefinition GetNoteScoreDefinition(NoteData.ScoringType scoringType);
+    public static int GetModifiedScoreForGameplayModifiersScoreMultiplier(int multipliedScore, float gameplayModifiersScoreMultiplier);
+}
+```
+
+**Hypothesis (needs Phase 4 verification):** game computes max score from the *transformed* beatmap that `GameplayCoreSceneSetupData.transformedBeatmapData` holds. If true, our filter applied during `CreateTransformedBeatmapData` propagates automatically → max score recomputes from filtered set → `%` correct. No extra patch needed.
+
+`ComputeQuickInaccurateMaxMultipliedScoreForBeatmap(BeatmapBasicData)` — used for fast estimates from level metadata, NOT from beatmap data → not affected by our filter. UI showing estimated max score may diverge from real max. Verify in Phase 4.
+
+---
+
+## Setup data and mode gating
+
+```csharp
+// Main.dll
+public class GameplayCoreSceneSetupData : SceneSetupData {
+    public BeatmapKey beatmapKey;
+    public BeatmapLevel beatmapLevel;
+    public GameplayModifiers gameplayModifiers;
+    public IReadonlyBeatmapData transformedBeatmapData { get; set; } // backing field present
+    // NO direct gameMode field/property
+    public void LoadTransformedBeatmapData();
+    public Task LoadTransformedBeatmapDataAsync();
+}
+```
+
+`GameplayCoreSceneSetupData` does **not** expose `gameMode` directly. `gameMode` string lives on the transition setup objects:
+
+- `StandardLevelScenesTransitionSetupDataSO.gameMode` (Main.dll)
+- `MultiplayerLevelScenesTransitionSetupDataSO.gameMode` (Main.dll)
+- `PartyFreePlayFlowCoordinator.gameMode` (Main.dll)
+- `SoloFreePlayFlowCoordinator.gameMode` (Main.dll)
+
+**Mode gating strategy:** inject the active `StandardLevelScenesTransitionSetupDataSO` via Zenject in gameplay scope. Read `.gameMode` string. If `"Solo"` → allow filter. Otherwise (`"Party"`, `"Multiplayer"`, `"Campaign"`) → force filter off. If the setup data resolved is `MultiplayerLevelScenesTransitionSetupDataSO` instead → MP, force off.
+
+---
+
+## Spawn-time alternate (not used; here for reference)
+
+`BeatmapObjectManager` (Main.dll) exposes:
+- `ProcessNoteData(NoteData noteData, in NoteSpawnData, bool forceIsFirstNoteBehaviour)`
+- `ProcessSliderData(SliderData sliderData, in SliderSpawnData)`
+- `ProcessObstacleData(ObstacleData obstacleData, in ObstacleSpawnData)`
+
+Could short-circuit these to skip spawn. Dirtier than transform-stage filtering. Keep as fallback if transform-stage breaks something unexpected.
+
+`BeatmapObjectSpawnController` (Main.dll) — spawn pipeline orchestrator. Not patched directly.
+
+---
+
+## Build dependencies (BS 1.39.1, from BeatMods)
+
+```
+BSIPA       4.3.6   (id "BSIPA")
+SiraUtil    3.1.14  (id "SiraUtil")
+BSML        1.12.4  (id "BeatSaberMarkupLanguage")
+BS_Utils    1.14.2  (id "BS Utils")     ← with space
+SongCore    3.14.15 (id "SongCore")     ← optional, only if needed
+```
+
+Manifest snippet for `manifest.json`:
+
+```json
+{
+  "gameVersion": "1.39.1",
+  "dependsOn": {
+    "BSIPA": "^4.3.6",
+    "SiraUtil": "^3.1.14",
+    "BeatSaberMarkupLanguage": "^1.12.4",
+    "BS Utils": "^1.14.2"
+  }
+}
+```
+
+---
+
+## BSML Gameplay Setup tab
+
+Standard ecosystem API (BSML 1.12.x):
+
+```csharp
+using BeatSaberMarkupLanguage.GameplaySetup;
+GameplaySetup.instance.AddTab(
+    name: "One Hand",
+    resource: "OneHandPractice.UI.OneHandSettings.bsml",
+    host: viewControllerInstance);
+```
+
+Tab appears in the right-panel during song select. Verify exact namespace/signature against installed BSML 1.12.4 at Phase 7.
+
+---
+
+## Submission disable API (BS_Utils 1.14.2)
+
+```csharp
+// namespace BS_Utils.Gameplay
+public static class ScoreSubmission {
+    public static void DisableSubmission(string mod);       // per-play
+    public static void ProlongedDisableSubmission(string mod); // persists until removed
+    public static void RemoveProlongedDisable(string mod);
+    public static bool Disabled { get; }
+    public static bool ProlongedDisabled { get; }
+}
+```
+
+Use prolonged + remove pair, keyed by `"OneHandPractice"`.
+
+---
+
+## Build tooling
+
+Same pattern as PracticePlugin:
+
+- .NET Framework 4.7.2 target
+- NuGet packages: `BeatSaberModdingTools.Tasks` (v2.0.0-beta4 or later), `BepInEx.AssemblyPublicizer.MSBuild` (v0.4.1+), `Lib.Harmony`
+- Refs: local DLLs from `<BeatSaberDir>/Beat Saber_Data/Managed` via env var
+- Env var to set: `BeatSaberDir=D:\BSManager\BSInstances\1.39.1`
+- Refasm NuGet: NOT used (not ecosystem standard for 1.39.x mods)
+
+Required assemblies to reference (subset, expand at scaffold time):
+- `Main.dll` (Beat Saber game)
+- `BeatmapCore.dll`
+- `DataModels.dll`
+- `GameplayCore.dll`
+- `HMUI.dll`
+- `Zenject.dll`
+- `IPA.Loader.dll`
+- `0Harmony.dll`
+- `BSML.dll` (BeatSaberMarkupLanguage)
+- `SiraUtil.dll`
+- `BS_Utils.dll`
+- Unity: `UnityEngine.CoreModule.dll`, `UnityEngine.UI.dll`
+
+---
+
+## Open questions (resolve during Phase 4 / Phase 7)
+
+1. Is `transformedBeatmapData` setter called with our filter output, and does `ScoreModel.ComputeMaxMultipliedScoreForBeatmap` get invoked on that filtered data? Empirical test in Phase 4.
+2. UI estimate of max score using `ComputeQuickInaccurateMaxMultipliedScoreForBeatmap(BeatmapBasicData)` will NOT reflect our filter (uses level metadata, not beatmap data). Acceptable for MVP — display % at end will still be correct.
+3. Does our filter interfere with `PracticePlugin`'s seek transform? Both patch the same `CreateTransformedBeatmapData`. `[HarmonyPriority(Priority.Low)]` ensures we run after — verify combo in regression test.
+4. Confirm BSML `GameplaySetup.instance.AddTab` signature in 1.12.4.
+
+---
+
+## Phase 0 closure
+
+All critical APIs identified by exact signature. Filter point + score model + dependencies + mode-gating approach are concrete. Phase 1 (scaffold) can begin.

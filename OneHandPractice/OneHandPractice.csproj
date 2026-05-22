@@ -1,0 +1,160 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>OneHandPractice</AssemblyName>
+    <RootNamespace>OneHandPractice</RootNamespace>
+    <LangVersion>10</LangVersion>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <ManifestPath>manifest.json</ManifestPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <Configurations>Debug;Release</Configurations>
+    <BSMTProjectType>BSIPA</BSMTProjectType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="UI\OneHandSettings.bsml" />
+  </ItemGroup>
+
+  <!-- Build-time tooling -->
+  <ItemGroup>
+    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta4" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Game assemblies (publicized so we can touch private members) -->
+  <ItemGroup>
+    <Reference Include="Main">
+      <HintPath>$(BeatSaberManagedDir)\Main.dll</HintPath>
+      <Private>false</Private>
+      <Publicize>true</Publicize>
+    </Reference>
+    <Reference Include="BeatmapCore">
+      <HintPath>$(BeatSaberManagedDir)\BeatmapCore.dll</HintPath>
+      <Private>false</Private>
+      <Publicize>true</Publicize>
+    </Reference>
+    <Reference Include="DataModels">
+      <HintPath>$(BeatSaberManagedDir)\DataModels.dll</HintPath>
+      <Private>false</Private>
+      <Publicize>true</Publicize>
+    </Reference>
+    <Reference Include="GameplayCore">
+      <HintPath>$(BeatSaberManagedDir)\GameplayCore.dll</HintPath>
+      <Private>false</Private>
+      <Publicize>true</Publicize>
+    </Reference>
+    <Reference Include="HMUI">
+      <HintPath>$(BeatSaberManagedDir)\HMUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="HMLib">
+      <HintPath>$(BeatSaberManagedDir)\HMLib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Zenject">
+      <HintPath>$(BeatSaberManagedDir)\Zenject.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Zenject-usage">
+      <HintPath>$(BeatSaberManagedDir)\Zenject-usage.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="IPA.Loader">
+      <HintPath>$(BeatSaberManagedDir)\IPA.Loader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BeatSaber.Init">
+      <HintPath>$(BeatSaberManagedDir)\BeatSaber.Init.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BeatSaber.ViewSystem">
+      <HintPath>$(BeatSaberManagedDir)\BeatSaber.ViewSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BeatSaber.Settings">
+      <HintPath>$(BeatSaberManagedDir)\BeatSaber.Settings.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRUI">
+      <HintPath>$(BeatSaberManagedDir)\VRUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GameInit">
+      <HintPath>$(BeatSaberManagedDir)\GameInit.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BGLib.AppFlow">
+      <HintPath>$(BeatSaberManagedDir)\BGLib.AppFlow.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Unity (referenced from Managed; engine ships there) -->
+  <ItemGroup>
+    <Reference Include="UnityEngine">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(BeatSaberManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- IPA libs -->
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>$(BeatSaberLibsDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BeatSaberLibsDir)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Mod plugin deps -->
+  <ItemGroup>
+    <Reference Include="BSML">
+      <HintPath>$(BeatSaberPluginsDir)\BSML.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberPluginsDir)\SiraUtil.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>$(BeatSaberPluginsDir)\BS_Utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- BSMT handles post-build copy to $(BeatSaberDir)\Plugins automatically via its targets. -->
+
+</Project>

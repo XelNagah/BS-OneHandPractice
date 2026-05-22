@@ -1,0 +1,19 @@
+<Project>
+  <!--
+    Resolve BeatSaberDir.
+    Priority: explicit MSBuild property > env var BeatSaberDir > common default paths.
+    Falls back to a Steam default; user can override by setting env var BeatSaberDir.
+  -->
+  <PropertyGroup>
+    <BeatSaberDir Condition="'$(BeatSaberDir)' == ''">$(BEATSABERDIR)</BeatSaberDir>
+    <BeatSaberDir Condition="'$(BeatSaberDir)' == ''">D:\BSManager\BSInstances\1.39.1</BeatSaberDir>
+    <BeatSaberManagedDir>$(BeatSaberDir)\Beat Saber_Data\Managed</BeatSaberManagedDir>
+    <BeatSaberLibsDir>$(BeatSaberDir)\Libs</BeatSaberLibsDir>
+    <BeatSaberPluginsDir>$(BeatSaberDir)\Plugins</BeatSaberPluginsDir>
+  </PropertyGroup>
+
+  <Target Name="ValidateBeatSaberDir" BeforeTargets="Build">
+    <Error Condition="!Exists('$(BeatSaberManagedDir)')"
+           Text="BeatSaberDir '$(BeatSaberDir)' does not contain a 'Beat Saber_Data\Managed' folder. Set the BeatSaberDir environment variable or MSBuild property to point at a Beat Saber install." />
+  </Target>
+</Project>
