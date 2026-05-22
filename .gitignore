@@ -42,9 +42,11 @@ dist/
 
 # Local secrets / env
 *.local.json
-!.claude/settings.local.json
 .env
 *.pdb
+
+# Claude Code workspace state — local-only
+.claude/
 
 # ILSpy temp
 ilspy_tmp/
