@@ -1,4 +1,8 @@
-$managed = "D:\BSManager\BSInstances\1.39.1\Beat Saber_Data\Managed"
+param(
+    [Parameter(Mandatory = $true, HelpMessage = "Path to a Beat Saber install's <root>\Beat Saber_Data\Managed folder.")]
+    [string]$ManagedDir
+)
+$managed = $ManagedDir
 $ilspy = "$env:TEMP\ilspy"
 Add-Type -Path "$ilspy\Mono.Cecil.dll"
 $resolver = New-Object Mono.Cecil.DefaultAssemblyResolver

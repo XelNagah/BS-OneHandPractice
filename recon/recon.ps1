@@ -1,5 +1,6 @@
 param(
-    [string]$ManagedDir = "D:\BSManager\BSInstances\1.39.1\Beat Saber_Data\Managed",
+    [Parameter(Mandatory = $true, HelpMessage = "Path to a Beat Saber install's <root>\Beat Saber_Data\Managed folder.")]
+    [string]$ManagedDir,
     [string]$IlspyDir = "$env:TEMP\ilspy",
     [string]$OutFile = "$PSScriptRoot\recon-output.txt"
 )

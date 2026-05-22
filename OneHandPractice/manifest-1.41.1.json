@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
+  "id": "OneHandPractice",
+  "name": "One Hand Practice",
+  "author": "XelNagah",
+  "version": "0.1.0",
+  "description": "Filter beatmap notes to a single hand for technique practice. Submission to leaderboards is disabled while active.",
+  "gameVersion": "1.41.1",
+  "dependsOn": {
+    "BSIPA": "^4.3.7",
+    "BeatSaberMarkupLanguage": "^1.14.1",
+    "SiraUtil": "^3.3.1",
+    "BS Utils": "^1.14.3"
+  }
+}

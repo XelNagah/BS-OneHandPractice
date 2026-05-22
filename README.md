@@ -20,14 +20,17 @@ If a hard pattern fails because your weaker hand is off-sync with the stronger o
 
 ## Requirements
 
-- **Beat Saber 1.39.1** (Steam or Oculus PC).
-- These mods (BSManager installs them automatically as dependencies):
-  - BSIPA 4.3.6+
-  - BeatSaberMarkupLanguage (BSML) 1.12.4+
-  - SiraUtil 3.1.14+
-  - BS Utils 1.14.2+
+Supported Beat Saber versions (Steam or Oculus PC):
 
-Newer Beat Saber versions are not supported in this release. 1.40 → 1.43 support is planned.
+| BS version | BSIPA | BSML | SiraUtil | BS Utils |
+|---|---|---|---|---|
+| **1.39.1**                                        | 4.3.6 | 1.12.4 | 3.1.14 | 1.14.2 |
+| **1.40.0**, **1.40.4**, **1.40.6**, **1.40.8**     | 4.3.6 | 1.12.5 | 3.2.1  | 1.14.2 |
+| **1.41.1**, **1.42.0**, **1.42.1**, **1.42.2**, **1.42.3**, **1.43.0** | 4.3.7 | 1.14.1 | 3.3.1  | 1.14.3 |
+
+11 BS versions in total. BSManager installs the dependency mods automatically at the right version when you pick a Beat Saber instance — you only need to drop in the matching `OneHandPractice-…-bs<version>.zip`.
+
+> Compiled and tested directly on **1.39.1, 1.40.8 and 1.43.0**. The other ship versions in their respective rows use the same compiled DLL (the underlying game APIs we touch did not change inside each row) — they are expected to work but have not been hands-on tested.
 
 ---
 
@@ -46,12 +49,14 @@ That's it. BSManager pulls dependencies automatically.
 
 ### Manual install
 
-1. Make sure the dependencies above are installed (use BSManager to install them if you don't have them).
-2. Download `OneHandPractice-0.1.0-bs1.39.1.zip` from the [latest release](../../releases/latest).
-3. Extract the zip **into your Beat Saber folder** (the one with `Beat Saber.exe`). The zip is structured so it drops `OneHandPractice.dll` straight into your `Plugins\` folder.
+1. Make sure the dependencies above are installed for your Beat Saber version (use BSManager).
+2. Download the zip that **matches your Beat Saber version** from the [latest release](../../releases/latest). There is one zip per supported game version, named `OneHandPractice-<plugin>-bs<game>.zip` — pick the file whose `bs<game>` matches your game (e.g. `OneHandPractice-0.1.0-bs1.42.1.zip` for Beat Saber 1.42.1).
+3. Extract it **into your Beat Saber folder** (the one with `Beat Saber.exe`). The zip is structured so it drops `OneHandPractice.dll` straight into your `Plugins\` folder.
 4. Launch the game.
 
 If extraction didn't put the file in the right place, you can manually copy `OneHandPractice.dll` into `<Beat Saber>\Plugins\`.
+
+> **Heads up:** the wrong-version zip will be refused by BSIPA at startup (`manifest gameVersion` is strict). Pick the zip that matches your game.
 
 ---
 
@@ -128,7 +133,7 @@ Want to build from source, contribute, or fork this for another Beat Saber versi
 
 ### Building
 
-Requires **.NET SDK 8 or 9** and a Beat Saber 1.39.1 install.
+Requires **.NET SDK 8 or 9** and a Beat Saber install for whatever version you want to target.
 
 ```powershell
 $env:BeatSaberDir = "D:\path\to\Beat Saber"
@@ -137,6 +142,19 @@ dotnet build OneHandPractice.sln -c Release
 
 `BeatSaberModdingTools.Tasks` resolves game references via the `BeatSaberDir` env var and drops the built DLL into `<Beat Saber>\Plugins\` automatically.
 
+### Multi-version builds
+
+`release.ps1` builds Release zips for every supported BS version in a single pass. Same source code; per-version manifests in `OneHandPractice/manifest-<version>.json` carry the right `gameVersion` and dependency floors.
+
+```powershell
+pwsh release.ps1                       # builds 1.39.1, 1.40.8, 1.43.0
+pwsh release.ps1 -BsVersion 1.43.0     # builds just one version
+```
+
+Outputs `dist\OneHandPractice-<plugin-version>-bs<bs-version>.zip` for each target — ready to attach as GitHub Release assets.
+
+The script auto-discovers BSManager's `BSInstances\` folder (checks the usual AppData and C:/D: drive paths). If yours lives somewhere else, pass `-BsManagerInstancesDir` or set the `BSMANAGER_INSTANCES_DIR` environment variable to the folder containing your version subfolders.
+
 ### Tests
 
 ```powershell
@@ -144,14 +162,6 @@ dotnet test OneHandPractice.Tests/OneHandPractice.Tests.csproj
 ```
 
 The filter logic is pure-function and fully unit tested — no Beat Saber DLLs needed to run the test suite.
-
-### Building a release artifact
-
-```powershell
-pwsh release.ps1
-```
-
-Produces `dist\OneHandPractice-<version>-bs1.39.1.zip` ready to attach to a GitHub Release.
 
 ### Architecture sketch
 

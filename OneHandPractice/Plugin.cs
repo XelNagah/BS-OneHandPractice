@@ -13,7 +13,7 @@ namespace OneHandPractice
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        private const string HarmonyId = "net.jllarens.OneHandPractice";
+        private const string HarmonyId = "com.xelnagah.OneHandPractice";
         private static readonly Harmony _harmony = new(HarmonyId);
         private static readonly OneHandSettingsViewController _settingsHost = new();
         private static bool _tabRegistered;
