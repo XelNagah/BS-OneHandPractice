@@ -1,25 +1,38 @@
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using OneHandPractice.Configuration;
+using OneHandPractice.Resources;
 
 namespace OneHandPractice.UI
 {
     /// <summary>
     /// Host for <c>OneHandSettings.bsml</c>. Backs the dropdown in the Gameplay Setup tab and
     /// writes the selection to <see cref="HandSelection.Current"/> so the filter patch sees it
-    /// on the next gameplay session.
+    /// on the next gameplay session. All user-visible text comes from <see cref="Strings"/>.
     /// </summary>
     public class OneHandSettingsViewController
     {
-        public const string TabName = "One Hand";
         public const string BsmlResource = "OneHandPractice.UI.OneHandSettings.bsml";
 
-        private const string ChoiceOff = "Off";
-        private const string ChoiceLeft = "Left";
-        private const string ChoiceRight = "Right";
+        public static string TabName => Strings.TabName;
+
+        [UIValue("title-text")]
+        public string TitleText => Strings.Title;
+
+        [UIValue("description-text")]
+        public string DescriptionText => Strings.Description;
+
+        [UIValue("hand-label")]
+        public string HandLabel => Strings.HandLabel;
+
+        [UIValue("hand-hover-hint")]
+        public string HandHoverHint => Strings.HandHoverHint;
+
+        [UIValue("footer-text")]
+        public string FooterText => Strings.Footer;
 
         [UIValue("hand-choices")]
-        public List<object> HandChoices { get; } = new() { ChoiceOff, ChoiceLeft, ChoiceRight };
+        public List<object> HandChoices { get; } = new() { Strings.ChoiceOff, Strings.ChoiceLeft, Strings.ChoiceRight };
 
         [UIValue("selected-hand")]
         public string SelectedHand
@@ -39,16 +52,16 @@ namespace OneHandPractice.UI
 
         private static string ToChoice(Hand hand) => hand switch
         {
-            Hand.Left => ChoiceLeft,
-            Hand.Right => ChoiceRight,
-            _ => ChoiceOff,
+            Hand.Left => Strings.ChoiceLeft,
+            Hand.Right => Strings.ChoiceRight,
+            _ => Strings.ChoiceOff,
         };
 
-        private static Hand FromChoice(string choice) => choice switch
+        private static Hand FromChoice(string choice)
         {
-            ChoiceLeft => Hand.Left,
-            ChoiceRight => Hand.Right,
-            _ => Hand.Off,
-        };
+            if (choice == Strings.ChoiceLeft) return Hand.Left;
+            if (choice == Strings.ChoiceRight) return Hand.Right;
+            return Hand.Off;
+        }
     }
 }

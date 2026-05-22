@@ -3,26 +3,22 @@
     xsi:schemaLocation='http://schemas.bsml.dev/Bsml.xsd https://raw.githubusercontent.com/monkeymanboy/BSMLSchema/master/Bsml.xsd'>
 
   <vertical pad='2' spacing='1' horizontal-fit='PreferredSize'>
-    <text text='One Hand Practice'
+    <text text='~title-text'
           font-size='6'
           align='Center'/>
 
-    <text text='Filter beatmap to a single hand. Submission to leaderboards is disabled while active.'
+    <text text='~description-text'
           font-size='3.5'
           align='Center'
           word-wrapping='true'/>
 
-    <horizontal pad-top='2' spacing='1' bg='round-rect-panel' pad='2'>
-      <text text='Hand'
-            font-size='4'
-            align='MidlineLeft'/>
-      <dropdown-list-setting value='selected-hand'
-                             choices='hand-choices'
-                             apply-on-change='true'
-                             min-width='35'/>
-    </horizontal>
+    <dropdown-list-setting text='~hand-label'
+                           value='selected-hand'
+                           choices='hand-choices'
+                           apply-on-change='true'
+                           hover-hint='~hand-hover-hint'/>
 
-    <text text='Note: combo ramps to x8 faster with fewer notes.'
+    <text text='~footer-text'
           font-size='3'
           align='Center'
           word-wrapping='true'

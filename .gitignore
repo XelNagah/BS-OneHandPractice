@@ -31,9 +31,14 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-# Recon working files (kept tracked: recon.ps1, recon-output.txt allowed)
+# Recon working files (keep .ps1 scripts, drop generated dumps/binaries)
 recon/*.dll
 recon/*.cache
+recon/recon-output.txt
+recon/recon-saber.txt
+
+# Release artifacts (regenerable via release.ps1)
+dist/
 
 # Local secrets / env
 *.local.json
