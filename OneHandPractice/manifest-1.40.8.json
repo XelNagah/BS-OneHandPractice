@@ -3,7 +3,7 @@
   "id": "OneHandPractice",
   "name": "One Hand Practice",
   "author": "XelNagah",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Filter beatmap notes to a single hand for technique practice. Submission to leaderboards is disabled while active.",
   "gameVersion": "1.40.8",
   "dependsOn": {

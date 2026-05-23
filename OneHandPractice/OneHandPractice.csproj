@@ -93,10 +93,6 @@
       <HintPath>$(BeatSaberManagedDir)\BGLib.AppFlow.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="BGLib.UnityExtension">
-      <HintPath>$(BeatSaberManagedDir)\BGLib.UnityExtension.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
   </ItemGroup>
 
   <!-- Unity (referenced from Managed; engine ships there) -->
@@ -156,7 +152,6 @@
     <Reference Include="BS_Utils">
       <HintPath>$(BeatSaberPluginsDir)\BS_Utils.dll</HintPath>
       <Private>false</Private>
-      <Publicize>true</Publicize>
     </Reference>
   </ItemGroup>
 

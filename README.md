@@ -98,9 +98,8 @@ Modes where the filter is **always off** (so nothing breaks):
 
 - Multiplayer
 - Campaign (official + Custom Campaigns)
-- Party mode
 
-Solo standard play is the only place the filter applies.
+Solo and **Party** standard play apply the filter. If you join a Party round with friends and want the normal beatmap, switch the One Hand tab to **Off** before pressing Play. The submission gate is automatic in either mode.
 
 ---
 

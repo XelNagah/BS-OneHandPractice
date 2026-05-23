@@ -1,29 +1,14 @@
+using BS_Utils.Gameplay;
+
 namespace OneHandPractice.Services
 {
-    // Reads the active scene-transition setup data exposed by BS_Utils to decide whether the
-    // filter should run for the current play. One source of truth: the strongly-typed setup
-    // data tells us Multiplayer/Mission directly, and StandardLevelScenesTransitionSetupDataSO
-    // exposes gameMode = "Solo" or "Party" via its public string property.
+    // Decides whether the filter should run for the current play. Uses BS_Utils' tracked Mode
+    // so we don't duplicate its Init-prefix patches. Standard covers Solo and Party — both are
+    // gameplay-identical and filtering in Party is the same standard-practice as PracticePlugin
+    // (the user can switch the filter off in the One Hand tab before a Party round if they want
+    // to play normally).
     public static class GameplayContext
     {
-        public static bool ShouldFilter()
-        {
-            var setup = BS_Utils.Plugin.scenesTransitionSetupData;
-            if (setup == null) return false;
-
-            switch (setup)
-            {
-                case MultiplayerLevelScenesTransitionSetupDataSO _:
-                case MissionLevelScenesTransitionSetupDataSO _:
-                    return false;
-
-                case StandardLevelScenesTransitionSetupDataSO std:
-                    return std.gameMode == "Solo";
-
-                default:
-                    // Tutorial, sandbox, anything custom we don't recognize — leave alone.
-                    return false;
-            }
-        }
+        public static bool ShouldFilter() => BS_Utils.Plugin.LevelData.Mode == Mode.Standard;
     }
 }
